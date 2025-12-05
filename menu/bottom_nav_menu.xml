@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_ebooks"
+        android:title="Ebooks"
+        android:icon="@drawable/ic_book"
+        android:tint="@color/black" />
+    <item
+        android:id="@+id/nav_audiobooks"
+        android:title="Audiolibros"
+        android:icon="@drawable/play_lesson_24px"
+        android:tint="@color/black" />
+    <item
+        android:id="@+id/nav_search"
+        android:title="Buscar"
+        android:icon="@drawable/search_24px" />
+    <item
+        android:id="@+id/nav_profile"
+        android:title="Perfil"
+        android:icon="@drawable/ic_profile"
+        android:tint="@color/black" />
+    <item
+        android:id="@+id/nav_settings"
+        android:title="Config"
+        android:icon="@drawable/ic_settings" />
+</menu>
