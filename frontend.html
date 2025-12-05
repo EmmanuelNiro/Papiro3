@@ -1,0 +1,610 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Biblioteca</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        .results {
+            margin-top: 30px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .user-card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Gestión de Biblioteca</h1>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="cambiarTab('usuarios')">Usuarios</button>
+            <button class="tab-button" onclick="cambiarTab('comentarios')">Comentarios</button>
+            <button class="tab-button" onclick="cambiarTab('calificaciones')">Calificaciones</button>
+            <button class="tab-button" onclick="cambiarTab('favoritos')">Favoritos</button>
+            <button class="tab-button" onclick="cambiarTab('leer')">Leer Más Tarde</button>
+        </div>
+
+        <div id="mensaje"></div>
+
+        <!-- TAB USUARIOS -->
+        <div id="usuarios" class="tab-content active">
+            <h2>Gestión de Usuarios</h2>
+            <form onsubmit="crearUsuario(event)">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Nombre:</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Apellidos:</label>
+                        <input type="text" id="apellidos" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre de Usuario:</label>
+                        <input type="text" id="nombre_usuario" required maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña:</label>
+                        <input type="password" id="contraseña" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Nacimiento:</label>
+                        <input type="date" id="fecha_nacimiento" required>
+                    </div>
+                </div>
+                <button type="submit">Crear Usuario</button>
+                <button type="button" onclick="obtenerUsuarios()">Listar Usuarios</button>
+            </form>
+
+            <div id="resultados-usuarios" class="results"></div>
+        </div>
+
+        <!-- TAB COMENTARIOS -->
+        <div id="comentarios" class="tab-content">
+            <h2>Gestión de Comentarios</h2>
+            <form onsubmit="crearComentario(event)">
+                <div class="form-group">
+                    <label>ID Usuario:</label>
+                    <input type="number" id="com_id_usuario" required>
+                </div>
+                <div class="form-group">
+                    <label>ID Libro:</label>
+                    <input type="number" id="com_id_libro" required>
+                </div>
+                <div class="form-group">
+                    <label>Comentario:</label>
+                    <textarea id="comentario" rows="4" required maxlength="500"></textarea>
+                </div>
+                <button type="submit">Crear Comentario</button>
+                <button type="button" onclick="obtenerComentarios()">Listar Comentarios</button>
+            </form>
+
+            <div id="resultados-comentarios" class="results"></div>
+        </div>
+
+        <!-- TAB CALIFICACIONES -->
+        <div id="calificaciones" class="tab-content">
+            <h2>Gestión de Calificaciones</h2>
+            <form onsubmit="crearCalificacion(event)">
+                <div class="form-group">
+                    <label>ID Usuario:</label>
+                    <input type="number" id="cal_id_usuario" required>
+                </div>
+                <div class="form-group">
+                    <label>ID Libro:</label>
+                    <input type="number" id="cal_libro" required>
+                </div>
+                <div class="form-group">
+                    <label>Estrellas (1-5):</label>
+                    <input type="number" id="estrellas" min="1" max="5" required>
+                </div>
+                <button type="submit">Crear Calificación</button>
+                <button type="button" onclick="obtenerCalificaciones()">Listar Calificaciones</button>
+            </form>
+
+            <div id="resultados-calificaciones" class="results"></div>
+        </div>
+
+        <!-- TAB FAVORITOS -->
+        <div id="favoritos" class="tab-content">
+            <h2>Gestión de Favoritos</h2>
+            <form onsubmit="crearFavorito(event)">
+                <div class="form-group">
+                    <label>ID Usuario:</label>
+                    <input type="number" id="fav_id_usuario" required>
+                </div>
+                <div class="form-group">
+                    <label>ID Libro:</label>
+                    <input type="number" id="fav_libro" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Libro:</label>
+                    <input type="text" id="fav_tipo_libro" required>
+                </div>
+                <button type="submit">Agregar a Favoritos</button>
+            </form>
+
+            <div id="resultados-favoritos" class="results"></div>
+        </div>
+
+        <!-- TAB LEER MÁS TARDE -->
+        <div id="leer" class="tab-content">
+            <h2>Lista Leer Más Tarde</h2>
+            <form onsubmit="crearLeerMasTarde(event)">
+                <div class="form-group">
+                    <label>ID Usuario:</label>
+                    <input type="number" id="leer_id_usuario" required>
+                </div>
+                <div class="form-group">
+                    <label>ID Libro:</label>
+                    <input type="number" id="leer_id_libro" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Libro:</label>
+                    <input type="text" id="leer_tipo_libro" required>
+                </div>
+                <button type="submit">Agregar a Leer Más Tarde</button>
+            </form>
+
+            <div id="resultados-leer" class="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://172.16.23.197:8000';
+
+        function cambiarTab(tab) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+
+            // Mostrar el tab seleccionado
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function mostrarMensaje(mensaje, tipo) {
+            const divMensaje = document.getElementById('mensaje');
+            divMensaje.innerHTML = `<div class="alert alert-${tipo}">${mensaje}</div>`;
+            setTimeout(() => divMensaje.innerHTML = '', 5000);
+        }
+
+        // ========== FUNCIONES USUARIOS ==========
+        async function crearUsuario(event) {
+            event.preventDefault();
+
+            const datos = {
+                nombre: document.getElementById('nombre').value,
+                apellidos: document.getElementById('apellidos').value,
+                nombre_usuario: document.getElementById('nombre_usuario').value,
+                contraseña: document.getElementById('contraseña').value,
+                fecha_nacimiento: document.getElementById('fecha_nacimiento').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/usuarios/`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(datos)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    mostrarMensaje('Usuario creado exitosamente', 'success');
+                    event.target.reset();
+                    obtenerUsuarios();
+                } else {
+                    mostrarMensaje('Error: ' + result.detail, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('Error de conexión: ' + error, 'error');
+            }
+        }
+
+        async function obtenerUsuarios() {
+            try {
+                const response = await fetch(`${API_URL}/usuarios/`);
+                const data = await response.json();
+
+                const resultDiv = document.getElementById('resultados-usuarios');
+                resultDiv.innerHTML = `<h3>Total de usuarios: ${data.total}</h3>`;
+
+                data.usuarios.forEach(usuario => {
+                    resultDiv.innerHTML += `
+                        <div class="user-card">
+                            <strong>ID:</strong> ${usuario.id_usuarios}<br>
+                            <strong>Nombre:</strong> ${usuario.nombre} ${usuario.apellidos}<br>
+                            <strong>Usuario:</strong> ${usuario.nombre_usuario}<br>
+                            <strong>Fecha Nacimiento:</strong> ${usuario.fecha_nacimiento}<br>
+                            <strong>Fecha Registro:</strong> ${usuario.fecha_registro}<br>
+                            <button class="btn-delete" onclick="eliminarUsuario(${usuario.id_usuarios})">Eliminar</button>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                mostrarMensaje('Error al obtener usuarios: ' + error, 'error');
+            }
+        }
+
+        async function eliminarUsuario(id) {
+            if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/usuarios/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    mostrarMensaje('Usuario eliminado exitosamente', 'success');
+                    obtenerUsuarios();
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje('Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('Error de conexión: ' + error, 'error');
+            }
+        }
+
+        // ========== FUNCIONES COMENTARIOS ==========
+        async function crearComentario(event) {
+            event.preventDefault();
+
+            const datos = {
+                id_usuario: parseInt(document.getElementById('com_id_usuario').value),
+                id_libro: parseInt(document.getElementById('com_id_libro').value),
+                comentario: document.getElementById('comentario').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/comentarios/`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(datos)
+                });
+
+                if (response.ok) {
+                    mostrarMensaje('Comentario creado exitosamente', 'success');
+                    event.target.reset();
+                    obtenerComentarios();
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje('Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('Error de conexión: ' + error, 'error');
+            }
+        }
+
+        async function obtenerComentarios() {
+            try {
+                const response = await fetch(`${API_URL}/comentarios/`);
+                const data = await response.json();
+
+                const resultDiv = document.getElementById('resultados-comentarios');
+                resultDiv.innerHTML = `<h3>Total de comentarios: ${data.total}</h3>`;
+
+                data.comentarios.forEach(com => {
+                    resultDiv.innerHTML += `
+                        <div class="user-card">
+                            <strong>ID:</strong> ${com.id_comentario}<br>
+                            <strong>Usuario ID:</strong> ${com.id_usuario}<br>
+                            <strong>Libro ID:</strong> ${com.id_libro}<br>
+                            <strong>Comentario:</strong> ${com.comentario}<br>
+                            <strong>Fecha:</strong> ${com.fecha_comentario}<br>
+                            <button class="btn-delete" onclick="eliminarComentario(${com.id_comentario})">Eliminar</button>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                mostrarMensaje('Error al obtener comentarios: ' + error, 'error');
+            }
+        }
+
+        async function eliminarComentario(id) {
+            if (!confirm('¿Eliminar este comentario?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/comentarios/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    mostrarMensaje('Comentario eliminado', 'success');
+                    obtenerComentarios();
+                }
+            } catch (error) {
+                mostrarMensaje('Error: ' + error, 'error');
+            }
+        }
+
+        // ========== FUNCIONES CALIFICACIONES ==========
+        async function crearCalificacion(event) {
+            event.preventDefault();
+
+            const datos = {
+                id_usuario: parseInt(document.getElementById('cal_id_usuario').value),
+                libro: parseInt(document.getElementById('cal_libro').value),
+                estrellas: parseInt(document.getElementById('estrellas').value)
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/calificaciones/`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(datos)
+                });
+
+                if (response.ok) {
+                    mostrarMensaje('Calificación creada exitosamente', 'success');
+                    event.target.reset();
+                    obtenerCalificaciones();
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje('Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('Error: ' + error, 'error');
+            }
+        }
+
+        async function obtenerCalificaciones() {
+            try {
+                const response = await fetch(`${API_URL}/calificaciones/`);
+                const data = await response.json();
+
+                const resultDiv = document.getElementById('resultados-calificaciones');
+                resultDiv.innerHTML = `<h3>Total de calificaciones: ${data.total}</h3>`;
+
+                data.calificaciones.forEach(cal => {
+                    const estrellas = '⭐'.repeat(cal.estrellas);
+                    resultDiv.innerHTML += `
+                        <div class="user-card">
+                            <strong>ID:</strong> ${cal.id_calificacion}<br>
+                            <strong>Usuario ID:</strong> ${cal.id_usuario}<br>
+                            <strong>Libro ID:</strong> ${cal.libro}<br>
+                            <strong>Calificación:</strong> ${estrellas} (${cal.estrellas}/5)<br>
+                            <strong>Fecha:</strong> ${cal.fecha_calificacion}<br>
+                            <button class="btn-delete" onclick="eliminarCalificacion(${cal.id_calificacion})">Eliminar</button>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                mostrarMensaje('Error: ' + error, 'error');
+            }
+        }
+
+        async function eliminarCalificacion(id) {
+            if (!confirm('¿Eliminar esta calificación?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/calificaciones/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    mostrarMensaje('Calificación eliminada', 'success');
+                    obtenerCalificaciones();
+                }
+            } catch (error) {
+                mostrarMensaje('Error: ' + error, 'error');
+            }
+        }
+
+        // ========== FUNCIONES FAVORITOS ==========
+        async function crearFavorito(event) {
+            event.preventDefault();
+
+            const datos = {
+                id_usuario: parseInt(document.getElementById('fav_id_usuario').value),
+                libro: parseInt(document.getElementById('fav_libro').value),
+                tipo_libro: document.getElementById('fav_tipo_libro').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/favoritos/`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(datos)
+                });
+
+                if (response.ok) {
+                    mostrarMensaje('Agregado a favoritos', 'success');
+                    event.target.reset();
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje('Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('Error: ' + error, 'error');
+            }
+        }
+
+        // ========== FUNCIONES LEER MÁS TARDE ==========
+        async function crearLeerMasTarde(event) {
+            event.preventDefault();
+
+            const datos = {
+                id_usuario: parseInt(document.getElementById('leer_id_usuario').value),
+                id_libro: parseInt(document.getElementById('leer_id_libro').value),
+                tipo_libro: document.getElementById('leer_tipo_libro').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/leer-mas-tarde/`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(datos)
+                });
+
+                if (response.ok) {
+                    mostrarMensaje('Agregado a leer más tarde', 'success');
+                    event.target.reset();
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje('Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('Error: ' + error, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
